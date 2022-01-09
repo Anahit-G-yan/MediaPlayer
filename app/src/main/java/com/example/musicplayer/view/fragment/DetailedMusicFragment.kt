@@ -3,9 +3,6 @@ package com.example.musicplayer.view.fragment
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.Message
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,10 +15,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.example.musicplayer.R
-import com.example.musicplayer.constant.Constant
 import com.example.musicplayer.controller.SharedController
 import com.example.musicplayer.extension.*
-import com.example.musicplayer.handler.MusicHandler
 import com.example.musicplayer.model.MediaFileModel
 import com.example.musicplayer.view.activity.MediaActivity
 import com.example.musicplayer.viewmodel.media.MediaViewModel
@@ -57,6 +52,8 @@ class DetailedMusicFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_detailed_music, container, false)
     }
 
+    private fun provideMusicTimeHandler() = (requireActivity() as MediaActivity).musicTimerHandler
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
@@ -69,40 +66,33 @@ class DetailedMusicFragment : Fragment() {
         // Initializing live data observers
         initObservers()
 
-        MusicHandler.handler?.postDelayed(rewindMusic, 1000)
+        // starting check buttons pressed functionality
+        musicViewModel.checkingButtonsPressed()
+    }
 
-
-        MusicHandler.handler = object : Handler(Looper.getMainLooper()) {
-            override fun handleMessage(msg: Message) {
-                val currentPosition = msg.what
-                val isPlaying = currentPosition.currentPositionIntoSeconds()
-                val duration = currentPosition.toString().convertingIntoMinutesAndSeconds()
-                musicSeekBar.max = musicViewModel.currentMedia().duration.durationToInt()
-                musicSeekBar.progress = isPlaying
-                musicCurrentPosition.text = duration
-
-                if (msg.what == -10) {
-                    if (loop.isVisible) {
-                        runService(musicViewModel.currentMedia())
-                    } else {
-                        musicViewModel.playNext()
-                    }
-                }
-            }
+    private fun drawMusicTimeInfo(musicCurrentTime: Int){
+        val isPlaying = musicCurrentTime.currentPositionIntoSeconds()
+        val duration = musicCurrentTime.toString().convertingIntoMinutesAndSeconds()
+        musicSeekBar.max = musicViewModel.currentMedia().duration.durationToInt()
+        musicSeekBar.progress = isPlaying
+        musicCurrentPosition.text = duration
+    }
+    private fun handleTypeOfNextMusic(){
+        if (loop.isVisible) {
+            runService(musicViewModel.currentMedia())
+        } else {
+            musicViewModel.playNext()
         }
     }
 
-    val rewindMusic = object : Runnable {
-        override fun run() {
-            if (prevMusicButton.isPressed) {
-                val mediaActivity = requireActivity() as MediaActivity
-                mediaActivity.mMusicService.rewindMusic()
-            }
-            if (nextMusicButton.isPressed) {
-                val mediaActivity = requireActivity() as MediaActivity
-                mediaActivity.mMusicService.forwardMusic()
-            }
-            MusicHandler.handler?.postDelayed(this, 1000)
+    private fun handleButtonsPressed(){
+        if (prevMusicButton.isPressed) {
+            val mediaActivity = requireActivity() as MediaActivity
+            mediaActivity.mMusicService.rewindMusic()
+        }
+        if (nextMusicButton.isPressed) {
+            val mediaActivity = requireActivity() as MediaActivity
+            mediaActivity.mMusicService.forwardMusic()
         }
     }
 
@@ -118,6 +108,20 @@ class DetailedMusicFragment : Fragment() {
         musicViewModel.playPrevLiveData.observe(viewLifecycleOwner) {
             runService(it)
             updateUi()
+        }
+
+        // observing buttons pressed live data
+        musicViewModel.buttonsPressedLiveData.observe(viewLifecycleOwner) {
+            handleButtonsPressed()
+        }
+
+        // observing type of next music live data
+        provideMusicTimeHandler().typeOfNextMusicLiveData().observe(viewLifecycleOwner){
+            handleTypeOfNextMusic()
+        }
+
+        provideMusicTimeHandler().currentMusicTimeLiveData().observe(viewLifecycleOwner){
+            drawMusicTimeInfo(it)
         }
     }
 

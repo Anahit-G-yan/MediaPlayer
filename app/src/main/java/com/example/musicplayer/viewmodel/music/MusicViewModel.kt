@@ -1,11 +1,14 @@
 package com.example.musicplayer.viewmodel.music
 
 import android.app.Application
-import android.widget.ImageView
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import com.example.musicplayer.constant.Constant
+import androidx.lifecycle.viewModelScope
 import com.example.musicplayer.model.MediaFileModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.properties.Delegates
 
 class MusicViewModel(application: Application) : AndroidViewModel(application) {
@@ -23,6 +26,20 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
      */
     val playNextLiveData: MutableLiveData<MediaFileModel> = MutableLiveData()
     val playPrevLiveData: MutableLiveData<MediaFileModel> = MutableLiveData()
+    val buttonsPressedLiveData: MutableLiveData<Unit> = MutableLiveData()
+
+    fun checkingButtonsPressed() {
+
+        CoroutineScope(Dispatchers.IO).launch {
+            startTime()
+        }
+    }
+
+    private suspend fun startTime() {
+        delay(1000)
+        buttonsPressedLiveData.postValue(Unit)
+        startTime()
+    }
 
 
     fun currentMedia(): MediaFileModel = modelMedia

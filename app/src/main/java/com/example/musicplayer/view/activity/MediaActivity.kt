@@ -4,23 +4,23 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.IBinder
-import android.view.Window
-import android.view.WindowManager
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import com.example.musicplayer.R
 import com.example.musicplayer.controller.SharedController
+import com.example.musicplayer.handler.MusicTimerHandler
 import com.example.musicplayer.service.MusicService
-import com.example.musicplayer.view.fragment.MediaFragments
 import com.example.musicplayer.view.fragment.SplashFragment
 
 class MediaActivity : AppCompatActivity() {
 
     lateinit var mMusicService: MusicService
     private var mBound: Boolean = false
+
+    lateinit var musicTimerHandler: MusicTimerHandler
 
 
     ////    /** Defines callbacks for service binding, passed to bindService()  */
@@ -30,6 +30,7 @@ class MediaActivity : AppCompatActivity() {
             // We've bound to MusicService, cast the IBinder and get MusicService instance
             val binder = service as MusicService.LocalBinder
             mMusicService = binder.getService()
+            musicTimerHandler = mMusicService.musicTimerHandler
             mBound = true
         }
 
@@ -46,7 +47,6 @@ class MediaActivity : AppCompatActivity() {
         //TODO: need to create base Activity and move openFragment function into there
         openFragment(R.id.fragmentContainer, SplashFragment())
     }
-
 
 
     private fun runService() {

@@ -5,8 +5,9 @@ import android.app.Service
 import android.content.Intent
 import android.media.MediaPlayer
 import android.os.*
+import android.util.Log
 import com.example.musicplayer.constant.Constant
-import com.example.musicplayer.handler.MusicHandler
+import com.example.musicplayer.handler.MusicTimerHandler
 import com.example.musicplayer.helper.NotificationHelper
 import com.example.musicplayer.model.MediaFileModel
 
@@ -17,6 +18,19 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
     private lateinit var modelMedia: MediaFileModel
     private var mediaPlayer: MediaPlayer? = null
 
+    val musicTimerHandler = MusicTimerHandler()
+
+    override fun onCreate() {
+        super.onCreate()
+        initObservers()
+    }
+
+    private fun initObservers() {
+        // observing type of next music live data
+        musicTimerHandler.timerLiveData().observeForever {
+            handleUpdateSongTime()
+        }
+    }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
@@ -43,7 +57,9 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
             mediaPlayer?.isLooping = true
             prepareAsync()
         }
-        MusicHandler.handler?.postDelayed(updateSongTime, 100)
+
+        // start timer for updating song time
+        musicTimerHandler.startTimer()
     }
 
 
@@ -59,28 +75,19 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
             mediaPlayer?.isLooping = true
             prepareAsync()
         }
-        MusicHandler.handler?.postDelayed(updateSongTime, 100)
+        musicTimerHandler.startTimer()
     }
 
 
+    private fun handleUpdateSongTime(){
 
-    private var updateSongTime = object : Runnable {
-        override fun run() {
-            if (MusicHandler.handler == null) return
-            val message = MusicHandler.handler!!.obtainMessage()
-            message.what = mediaPlayer?.currentPosition ?: 0
-            MusicHandler.handler?.sendMessage(message)
-
-
-            mediaPlayer?.setOnCompletionListener {
-                val messagee = MusicHandler.handler!!.obtainMessage()
-                messagee.what = -10
-                MusicHandler.handler!!.sendMessage(messagee)
-            }
-            MusicHandler.handler!!.postDelayed(this, 1000)
+        Log.i("dhcbdfbhebf---->>>> ","Helooooooop")
+        val currentMusicTime = mediaPlayer?.currentPosition ?: 0
+        musicTimerHandler.updateMusicTime(currentMusicTime)
+        mediaPlayer?.setOnCompletionListener {
+            musicTimerHandler.sendTypeOfNextMusicAction()
         }
     }
-
 
     fun rewindMusic() {
         val rewind = mediaPlayer!!.currentPosition - 2500
@@ -117,7 +124,7 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
     override fun onDestroy() {
         mediaPlayer?.stop()
         mediaPlayer?.release()
-        MusicHandler.handler = null
+        musicTimerHandler.stopTimerJob()
         super.onDestroy()
     }
 
