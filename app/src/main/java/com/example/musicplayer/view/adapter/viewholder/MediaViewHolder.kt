@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.musicplayer.R
-import com.example.musicplayer.controller.SharedController
 import com.example.musicplayer.extension.convertingIntoMinutesAndSeconds
 import com.example.musicplayer.extension.thumbnailToByteArray
 import com.example.musicplayer.model.MediaFileModel

@@ -4,6 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import kotlinx.coroutines.*
 
 class MusicTimerHandler {
+
     private lateinit var timerJob: Job
     private val timerLiveData: MutableLiveData<Unit> = MutableLiveData()
     private val typeOfNextMusic: MutableLiveData<Unit> = MutableLiveData()

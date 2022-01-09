@@ -1,5 +1,6 @@
 package com.example.musicplayer.view.fragment
 
+import android.content.Context
 import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.os.Bundle
@@ -15,7 +16,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import com.bumptech.glide.Glide
 import com.example.musicplayer.R
-import com.example.musicplayer.controller.SharedController
 import com.example.musicplayer.extension.*
 import com.example.musicplayer.model.MediaFileModel
 import com.example.musicplayer.view.activity.MediaActivity
@@ -128,8 +128,7 @@ class DetailedMusicFragment : Fragment() {
 
 
     private fun runService(model: MediaFileModel) {
-        val sharedController = SharedController(requireContext())
-        if (sharedController.checkService()){
+        if (musicViewModel.checkService()){
             val mediaActivity = activity as MediaActivity
             mediaActivity.mMusicService.playForegroundMusic(model)
         }else{

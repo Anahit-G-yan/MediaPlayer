@@ -34,11 +34,14 @@ class MusicService : Service(), MediaPlayer.OnPreparedListener, MediaPlayer.OnEr
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 
-        if (intent?.action == Constant.MUSIC_SERVICE_STOP) {
-            stopForeground(true)
-            stopSelf()
-        }else if (intent?.action == Constant.MUSIC_SERVICE_PAUSE){
-            pause()
+        when(intent?.action){
+            Constant.MUSIC_SERVICE_STOP ->{
+                stopForeground(true)
+                stopSelf()
+            }
+            Constant.MUSIC_SERVICE_PAUSE ->{
+                pause()
+            }
         }
         return super.onStartCommand(intent, flags, startId)
     }

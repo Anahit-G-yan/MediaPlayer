@@ -6,19 +6,21 @@ import android.content.Intent
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
-import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.viewModels
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import com.example.musicplayer.R
-import com.example.musicplayer.controller.SharedController
 import com.example.musicplayer.handler.MusicTimerHandler
 import com.example.musicplayer.service.MusicService
-import com.example.musicplayer.view.fragment.SplashFragment
+import com.example.musicplayer.view.fragment.MediaFragments
+import com.example.musicplayer.viewmodel.music.MusicViewModel
 
-class MediaActivity : AppCompatActivity() {
+class MediaActivity : BaseActivity() {
 
     lateinit var mMusicService: MusicService
     private var mBound: Boolean = false
+
+    private val musicViewModel: MusicViewModel by viewModels()
+
 
     lateinit var musicTimerHandler: MusicTimerHandler
 
@@ -45,7 +47,7 @@ class MediaActivity : AppCompatActivity() {
 
         runService()
         //TODO: need to create base Activity and move openFragment function into there
-        openFragment(R.id.fragmentContainer, SplashFragment())
+        openFragment(R.id.fragmentContainer, MediaFragments())
     }
 
 
@@ -60,15 +62,6 @@ class MediaActivity : AppCompatActivity() {
                 startService(intent)
             }
         }
-    }
-
-
-    fun openFragment(container: Int, fragment: Fragment) {
-        supportFragmentManager
-            .beginTransaction()
-            .replace(container, fragment, fragment::class.java.name)
-            .addToBackStack(fragment::class.java.name)
-            .commit()
     }
 
     override fun onStart() {
@@ -87,8 +80,7 @@ class MediaActivity : AppCompatActivity() {
 
     override fun onDestroy() {
         super.onDestroy()
-        val sharedController = SharedController(this)
-        if (!sharedController.checkService()) {
+        if (!musicViewModel.checkService()) {
             mMusicService.stopSelf()
         }
     }

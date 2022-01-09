@@ -20,7 +20,7 @@
             android:layout_centerVertical="true"
             android:textColor="@color/white"
             />
-    <Switch
+    <androidx.appcompat.widget.SwitchCompat
         android:id="@+id/serviceSwith"
         android:layout_width="50dp"
         android:layout_height="wrap_content"

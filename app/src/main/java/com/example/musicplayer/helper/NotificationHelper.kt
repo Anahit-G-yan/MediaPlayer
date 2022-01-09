@@ -22,7 +22,7 @@ object NotificationHelper {
     private lateinit var modelMedia: MediaFileModel
 
 
-    fun startForeground(service: Service, mMediaFileModel: MediaFileModel) {
+    fun startForeground(service: Service, mMediaFileModel: MediaFileModel, pauseIcon: Int = R.drawable.pause_button) {
         val mediaSession = MediaSessionCompat(service, "mediaSession")
         createNotificationChannel(service)
         modelMedia = mMediaFileModel
@@ -42,7 +42,7 @@ object NotificationHelper {
 
 
         val builder = NotificationCompat.Builder(service, "CHANNEL_ID")
-            .addAction(R.drawable.pause_button, "Pause", pause)
+            .addAction(pauseIcon, "Pause", pause)
             .addAction(R.drawable.close, "Stop", stop)
             .setStyle(
                 androidx.media.app.NotificationCompat.MediaStyle()

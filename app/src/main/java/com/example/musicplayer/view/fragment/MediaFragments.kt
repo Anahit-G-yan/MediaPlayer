@@ -1,7 +1,9 @@
 package com.example.musicplayer.view.fragment
 
+import android.content.Context
 import android.os.Bundle
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.widget.ViewPager2
 import com.example.musicplayer.R
@@ -53,5 +55,14 @@ class MediaFragments : Fragment() {
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = mediaFragmentViewPagerAdapter.getPageTitle(position)
         }.attach()
+    }
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        requireActivity().onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true){
+            override fun handleOnBackPressed() {
+                requireActivity().finish()
+            }
+        })
     }
 }

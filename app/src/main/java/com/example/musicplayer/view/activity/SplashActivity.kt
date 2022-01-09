@@ -1,35 +1,22 @@
-package com.example.musicplayer.view.fragment
+package com.example.musicplayer.view.activity
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.musicplayer.R
-import com.example.musicplayer.view.activity.MediaActivity
+import com.example.musicplayer.view.fragment.MediaFragments
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-//TODO: please add final comments in functions
-//TODO: please create base fragment
-class SplashFragment : Fragment() {
-
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_splash, container, false)
-    }
-
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+class SplashActivity : BaseActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_splash)
 
         // for changing status and navigation bar colors
         handleStatusAndNavigationBarColor()
@@ -42,13 +29,12 @@ class SplashFragment : Fragment() {
     private suspend fun handleCheckPermission() {
         delay(1000)
         if (ContextCompat.checkSelfPermission(
-                requireContext(),
+                this,
                 Manifest.permission.READ_EXTERNAL_STORAGE
             ) == PackageManager.PERMISSION_GRANTED
         ) {
             // This case permission is ok
-            val mediaActivity = activity as MediaActivity
-            mediaActivity.openFragment(R.id.fragmentContainer, MediaFragments())
+            goToNext()
         } else {
             // request corresponding permission
             // You can directly ask for the permission.
@@ -57,9 +43,16 @@ class SplashFragment : Fragment() {
         }
     }
 
+    private fun goToNext() {
+        // This case permission is ok
+        val mediaIntent = Intent(this, MediaActivity::class.java)
+        mediaIntent.flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(mediaIntent)
+        finish()
+    }
+
 
     private fun handleStatusAndNavigationBarColor() {
-        val window = requireActivity().window
         window.statusBarColor = this.resources.getColor(R.color.transparent)
         window.navigationBarColor = this.resources.getColor(R.color.transparent)
     }
@@ -71,11 +64,9 @@ class SplashFragment : Fragment() {
         ) { isGranted: Boolean ->
             if (isGranted) {
                 // Permission is granted. Continue the action or workflow in your app.
-                val mediaActivity = activity as MediaActivity
-                mediaActivity.openFragment(R.id.fragmentContainer, MediaFragments())
+                goToNext()
             } else {
-                requireActivity().finish()
+                finish()
             }
         }
-
 }

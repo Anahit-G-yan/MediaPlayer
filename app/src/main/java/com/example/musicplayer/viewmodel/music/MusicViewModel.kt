@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.musicplayer.controller.SharedController
 import com.example.musicplayer.model.MediaFileModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -27,6 +28,25 @@ class MusicViewModel(application: Application) : AndroidViewModel(application) {
     val playNextLiveData: MutableLiveData<MediaFileModel> = MutableLiveData()
     val playPrevLiveData: MutableLiveData<MediaFileModel> = MutableLiveData()
     val buttonsPressedLiveData: MutableLiveData<Unit> = MutableLiveData()
+
+    /**
+     *  Shared preferences controller
+     */
+    private val sharedController = SharedController(getApplication())
+
+    fun saveForegroundService(type: String) {
+        sharedController.saveForegroundService(type)
+    }
+
+
+    fun checkService(): Boolean {
+        return sharedController.checkService()
+    }
+
+    fun removeForegroundService(){
+        sharedController.removeForegroundService()
+    }
+
 
     fun checkingButtonsPressed() {
 
